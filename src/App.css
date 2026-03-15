@@ -1,0 +1,16 @@
+#root {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* Smooth transition for tab state changes */
+[role="tablist"] {
+  --transition-duration: 300ms;
+}
+
+[role="tab"] {
+  transition: background-color var(--transition-duration) ease-in-out,
+              color var(--transition-duration) ease-in-out,
+              box-shadow var(--transition-duration) ease-in-out;
+}
