@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TrendingDown, PackageX, AlertTriangle, CheckCircle } from 'lucide-react';
+import { TrendingDown, PackageX, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
@@ -8,6 +8,8 @@ import { Alert, AlertDescription } from './ui/alert';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../hooks/use-toast';
 import { MainContentContainer } from './MainContentContainer';
+import { useDemoMode } from '../contexts/DemoModeContext';
+import { formatProductTitle } from '../lib/demoTransform';
 import {
   Bar,
   Line,
@@ -43,6 +45,7 @@ interface DataSourceInfo {
 }
 
 export function ReturnsAnalysis() {
+  const { isDemoMode } = useDemoMode();
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<number>(2025);
   const [loading, setLoading] = useState(false);
@@ -194,7 +197,19 @@ export function ReturnsAnalysis() {
 
       analysis.sort((a, b) => b.return_rate - a.return_rate);
 
-      setAnalysisData(analysis);
+      const maskedAnalysis = analysis.map(item => {
+        const unitsSold = isDemoMode ? item.units_sold * 3 : item.units_sold;
+        const unitsReturned = isDemoMode ? item.units_returned * 3 : item.units_returned;
+        return {
+          ...item,
+          product_name: formatProductTitle(item.product_name, isDemoMode),
+          units_sold: unitsSold,
+          units_returned: unitsReturned,
+          return_rate: unitsSold > 0 ? (unitsReturned / unitsSold) * 100 : 0,
+        };
+      });
+
+      setAnalysisData(maskedAnalysis);
 
       if (analysis.length === 0) {
         toast({

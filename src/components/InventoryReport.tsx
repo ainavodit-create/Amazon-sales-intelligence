@@ -9,6 +9,8 @@ import { Alert, AlertDescription } from './ui/alert';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../hooks/use-toast';
 import { MainContentContainer } from './MainContentContainer';
+import { useDemoMode } from '../contexts/DemoModeContext';
+import { formatProductTitle } from '../lib/demoTransform';
 
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -31,6 +33,7 @@ interface InventoryItem {
 }
 
 export function InventoryReport() {
+  const { isDemoMode } = useDemoMode();
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<number>(2025);
   const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
@@ -180,9 +183,25 @@ export function InventoryReport() {
         }
       });
 
-      const inventory = Array.from(baseProductMap.values()).sort(
+      const rawInventory = Array.from(baseProductMap.values()).sort(
         (a, b) => b.total_pod_boxes - a.total_pod_boxes
       );
+
+      const inventory = rawInventory.map(item => ({
+        ...item,
+        product_name: formatProductTitle(item.product_name, isDemoMode),
+        units_sold_as_single: isDemoMode ? item.units_sold_as_single * 3 : item.units_sold_as_single,
+        units_sold_in_bundles: isDemoMode ? item.units_sold_in_bundles * 3 : item.units_sold_in_bundles,
+        pod_boxes_from_singles: isDemoMode ? item.pod_boxes_from_singles * 3 : item.pod_boxes_from_singles,
+        pod_boxes_from_bundles: isDemoMode ? item.pod_boxes_from_bundles * 3 : item.pod_boxes_from_bundles,
+        total_pod_boxes: isDemoMode ? item.total_pod_boxes * 3 : item.total_pod_boxes,
+        bundle_breakdown: item.bundle_breakdown.map(b => ({
+          ...b,
+          bundle_name: formatProductTitle(b.bundle_name, isDemoMode),
+          units: isDemoMode ? b.units * 3 : b.units,
+          boxes: isDemoMode ? b.boxes * 3 : b.boxes,
+        })),
+      }));
 
       setInventoryData(inventory);
 

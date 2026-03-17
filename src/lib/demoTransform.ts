@@ -56,6 +56,11 @@ const demoProductMapping: Record<string, string> = {
   "Caramelly Double Walled Latte Glass (2)": "Bingo Thermo Glass Set (2)",
 };
 
+export function formatProductTitle(title: string, isDemoMode: boolean): string {
+  if (!isDemoMode) return title;
+  return obfuscateProductName(title);
+}
+
 export function obfuscateProductName(name: string): string {
   const exact = demoProductMapping[name.trim()];
   if (exact) return exact;

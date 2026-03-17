@@ -25,11 +25,19 @@ export function Sidebar({ activeNav, onNavChange }: SidebarProps) {
       <div className="w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col p-6 fixed left-0 top-0 h-screen">
         <div className="mb-8">
           <div className="flex flex-col gap-1">
-            <img
-              src="/caramelly-new-logo-2024_200x@2x.avif"
-              alt="Caramelly Logo"
-              className="w-32 h-auto"
-            />
+            {isDemoMode ? (
+              <img
+                src="/Vgromore_Logo.jpg"
+                alt="V Growmore Consultants Logo"
+                className="w-40 h-auto object-contain"
+              />
+            ) : (
+              <img
+                src="/caramelly-new-logo-2024_200x@2x.avif"
+                alt="Caramelly Logo"
+                className="w-32 h-auto"
+              />
+            )}
             <p className="text-xs text-gray-500 mt-1">Amazon Sales Intelligence</p>
           </div>
 
