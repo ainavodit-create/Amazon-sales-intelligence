@@ -9,6 +9,8 @@ import { DashboardTable } from './DashboardTable';
 import { DashboardCharts } from './DashboardCharts';
 import { Badge } from './ui/badge';
 import { MainContentContainer } from './MainContentContainer';
+import { useDemoMode } from '../contexts/DemoModeContext';
+import { applyDemoTransform } from '../lib/demoTransform';
 
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -18,6 +20,7 @@ const MONTHS = [
 const YEARS = [2025, 2026, 2027];
 
 export function MonthlyDashboard() {
+  const { isDemoMode } = useDemoMode();
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<number>(2025);
   const [data, setData] = useState<DashboardRow[]>([]);
@@ -50,7 +53,7 @@ export function MonthlyDashboard() {
     if (selectedMonth && selectedYear) {
       loadDashboardData();
     }
-  }, [selectedMonth, selectedYear]);
+  }, [selectedMonth, selectedYear, isDemoMode]);
 
   const loadDashboardData = async () => {
     setLoading(true);
@@ -115,11 +118,13 @@ export function MonthlyDashboard() {
         })
         .filter((row): row is DashboardRow => row !== null);
 
-      setData(joinedData);
+      const displayData = isDemoMode ? applyDemoTransform(joinedData) : joinedData;
 
-      const uniqueCategories = Array.from(new Set(joinedData.map(r => r.category)));
+      setData(displayData);
+
+      const uniqueCategories = Array.from(new Set(displayData.map(r => r.category)));
       const uniqueSubCategories = Array.from(
-        new Set(joinedData.map(r => r.sub_category).filter(Boolean) as string[])
+        new Set(displayData.map(r => r.sub_category).filter(Boolean) as string[])
       );
 
       setCategories(uniqueCategories);

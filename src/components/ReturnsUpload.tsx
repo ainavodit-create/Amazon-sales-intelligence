@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import { XMLParser } from 'fast-xml-parser';
-import { Upload, CheckCircle2, AlertCircle, FileText, FileCode } from 'lucide-react';
+import { Upload, CircleCheck as CheckCircle2, CircleAlert as AlertCircle, FileText, FileCode } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Alert, AlertDescription } from './ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -9,6 +9,7 @@ import { Button } from './ui/button';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../hooks/use-toast';
 import { MainContentContainer } from './MainContentContainer';
+import { useDemoMode } from '../contexts/DemoModeContext';
 
 interface ReturnsRow {
   'ASIN'?: string;
@@ -26,6 +27,7 @@ const MONTHS = [
 const YEARS = [2025, 2026, 2027];
 
 export function ReturnsUpload({ onDataUploaded }: { onDataUploaded: () => void }) {
+  const { isDemoMode } = useDemoMode();
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<number>(2025);
   const [uploading, setUploading] = useState(false);
@@ -619,15 +621,18 @@ export function ReturnsUpload({ onDataUploaded }: { onDataUploaded: () => void }
           </div>
         </div>
 
-        <div className="flex justify-center pt-4">
+        <div className="flex flex-col items-center gap-2 pt-4">
           <Button
             onClick={handleProcessReturns}
-            disabled={uploading || !selectedMonth || (!flexFile && !fbmFile)}
+            disabled={uploading || !selectedMonth || (!flexFile && !fbmFile) || isDemoMode}
             size="lg"
-            className="px-8"
+            className={`px-8 ${isDemoMode ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {uploading ? 'Processing...' : 'Process Returns'}
           </Button>
+          {isDemoMode && (
+            <p className="text-xs text-amber-600 font-medium">Upload disabled in Demo Mode.</p>
+          )}
         </div>
 
         <Alert className="border-blue-500 bg-blue-50">

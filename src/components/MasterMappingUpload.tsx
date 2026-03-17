@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import Papa from 'papaparse';
-import { Upload, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Upload, CircleCheck as CheckCircle2, CircleAlert as AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Alert, AlertDescription } from './ui/alert';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../hooks/use-toast';
 import { MainContentContainer } from './MainContentContainer';
+import { useDemoMode } from '../contexts/DemoModeContext';
 
 interface MappingRow {
   asin: string;
@@ -18,6 +19,7 @@ interface MappingRow {
 }
 
 export function MasterMappingUpload() {
+  const { isDemoMode } = useDemoMode();
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -136,18 +138,22 @@ export function MasterMappingUpload() {
         )}
 
         <div className="space-y-2">
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
+          <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            isDemoMode
+              ? 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed'
+              : 'border-gray-300 hover:border-gray-400'
+          }`}>
             <input
               type="file"
               accept=".csv,.xlsx,.xls"
               onChange={handleFileUpload}
-              disabled={uploading}
+              disabled={uploading || isDemoMode}
               className="hidden"
               id="mapping-file-upload"
             />
             <label
               htmlFor="mapping-file-upload"
-              className="cursor-pointer flex flex-col items-center"
+              className={`flex flex-col items-center ${isDemoMode ? 'cursor-not-allowed' : 'cursor-pointer'}`}
             >
               <Upload className="w-12 h-12 text-gray-400 mb-3" />
               <p className="text-sm font-medium text-gray-700 mb-1">
@@ -156,6 +162,9 @@ export function MasterMappingUpload() {
               <p className="text-xs text-gray-500">CSV or Excel format</p>
             </label>
           </div>
+          {isDemoMode && (
+            <p className="text-xs text-amber-600 text-center font-medium">Upload disabled in Demo Mode.</p>
+          )}
 
           <div className="text-xs text-gray-600 space-y-1">
             <p className="font-semibold">Required columns:</p>

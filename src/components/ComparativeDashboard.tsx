@@ -9,6 +9,8 @@ import { Alert, AlertDescription } from './ui/alert';
 import { TrendHighlightCards } from './TrendHighlightCards';
 import { ProductComparisonTable } from './ProductComparisonTable';
 import { MainContentContainer } from './MainContentContainer';
+import { useDemoMode } from '../contexts/DemoModeContext';
+import { applyDemoTransform } from '../lib/demoTransform';
 
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -25,6 +27,7 @@ interface MonthData {
 }
 
 export function ComparativeDashboard() {
+  const { isDemoMode } = useDemoMode();
   const [currentMonth, setCurrentMonth] = useState<string>('');
   const [currentYear, setCurrentYear] = useState<number>(2025);
   const [benchmarkMonth, setBenchmarkMonth] = useState<string>('');
@@ -111,11 +114,13 @@ export function ComparativeDashboard() {
       })
       .filter((row): row is DashboardRow => row !== null);
 
-    const totalSales = joinedData.reduce((sum, row) => sum + row.ordered_product_sales, 0);
-    const totalUnits = joinedData.reduce((sum, row) => sum + row.units_ordered, 0);
-    const totalOrders = joinedData.reduce((sum, row) => sum + row.total_order_items, 0);
+    const displayData = isDemoMode ? applyDemoTransform(joinedData) : joinedData;
 
-    return { totalSales, totalUnits, totalOrders, rows: joinedData };
+    const totalSales = displayData.reduce((sum, row) => sum + row.ordered_product_sales, 0);
+    const totalUnits = displayData.reduce((sum, row) => sum + row.units_ordered, 0);
+    const totalOrders = displayData.reduce((sum, row) => sum + row.total_order_items, 0);
+
+    return { totalSales, totalUnits, totalOrders, rows: displayData };
   };
 
   const handleCompare = async () => {

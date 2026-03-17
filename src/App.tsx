@@ -8,9 +8,10 @@ import { InventoryReport } from './components/InventoryReport';
 import { ReturnsUpload } from './components/ReturnsUpload';
 import { ReturnsAnalysis } from './components/ReturnsAnalysis';
 import { Toaster } from './components/ui/toaster';
+import { DemoModeProvider } from './contexts/DemoModeContext';
 import './App.css';
 
-function App() {
+function AppInner() {
   const [activeNav, setActiveNav] = useState('dashboard');
 
   const handleDataUploaded = () => {
@@ -31,6 +32,14 @@ function App() {
       </div>
       <Toaster />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <DemoModeProvider>
+      <AppInner />
+    </DemoModeProvider>
   );
 }
 

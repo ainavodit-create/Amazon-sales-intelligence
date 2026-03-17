@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
-import { Upload, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Upload, CircleCheck as CheckCircle2, CircleAlert as AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Alert, AlertDescription } from './ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase';
 import { useToast } from '../hooks/use-toast';
 import { UnmappedProductsModal } from './UnmappedProductsModal';
 import { MainContentContainer } from './MainContentContainer';
+import { useDemoMode } from '../contexts/DemoModeContext';
 
 interface SalesRow {
   '(Parent) ASIN'?: string;
@@ -39,6 +40,7 @@ interface UnmappedProduct {
 }
 
 export function MonthlySalesUpload({ onDataUploaded }: { onDataUploaded: () => void }) {
+  const { isDemoMode } = useDemoMode();
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<number>(2025);
   const [uploading, setUploading] = useState(false);
@@ -325,19 +327,23 @@ export function MonthlySalesUpload({ onDataUploaded }: { onDataUploaded: () => v
         </div>
 
         <div className="space-y-2">
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
+          <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            isDemoMode
+              ? 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed'
+              : 'border-gray-300 hover:border-gray-400'
+          }`}>
             <input
               type="file"
               accept=".csv,.xlsx,.xls"
               onChange={handleFileUpload}
-              disabled={uploading || !selectedMonth}
+              disabled={uploading || !selectedMonth || isDemoMode}
               className="hidden"
               id="sales-file-upload"
             />
             <label
               htmlFor="sales-file-upload"
-              className={`cursor-pointer flex flex-col items-center ${
-                !selectedMonth ? 'opacity-50 cursor-not-allowed' : ''
+              className={`flex flex-col items-center ${
+                (!selectedMonth || isDemoMode) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
               }`}
             >
               <Upload className="w-12 h-12 text-gray-400 mb-3" />
@@ -347,6 +353,9 @@ export function MonthlySalesUpload({ onDataUploaded }: { onDataUploaded: () => v
               <p className="text-xs text-gray-500">CSV or Excel format</p>
             </label>
           </div>
+          {isDemoMode && (
+            <p className="text-xs text-amber-600 text-center font-medium">Upload disabled in Demo Mode.</p>
+          )}
 
           <div className="text-xs text-gray-600 space-y-1">
             <p className="font-semibold">Amazon Business Report Columns (Auto-mapped):</p>
