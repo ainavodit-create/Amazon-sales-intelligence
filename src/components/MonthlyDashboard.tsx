@@ -23,6 +23,7 @@ export function MonthlyDashboard() {
   const { isDemoMode } = useDemoMode();
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<number>(2025);
+  const [monthsWithData, setMonthsWithData] = useState<Set<string>>(new Set());
   const [data, setData] = useState<DashboardRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
@@ -37,15 +38,51 @@ export function MonthlyDashboard() {
     loadAvailableMonths();
   }, []);
 
+  useEffect(() => {
+    fetchMonthsWithData(selectedYear);
+  }, [selectedYear]);
+
   const loadAvailableMonths = async () => {
     const { data: salesData } = await supabase
       .from('amazon_monthly_sales')
       .select('report_month, report_year')
+      .order('report_year', { ascending: false })
+      .order('report_month', { ascending: false })
       .limit(1);
 
     if (salesData && salesData.length > 0) {
-      setSelectedMonth(salesData[0].report_month);
       setSelectedYear(salesData[0].report_year);
+      setSelectedMonth(salesData[0].report_month);
+    }
+  };
+
+  const fetchMonthsWithData = async (year: number) => {
+    const { data } = await supabase
+      .from('amazon_monthly_sales')
+      .select('report_month')
+      .eq('report_year', year);
+
+    const months = new Set(data?.map(r => r.report_month) ?? []);
+    setMonthsWithData(months);
+  };
+
+  const handleYearChange = async (yearStr: string) => {
+    const year = parseInt(yearStr);
+    setSelectedYear(year);
+    setData([]);
+
+    const { data } = await supabase
+      .from('amazon_monthly_sales')
+      .select('report_month')
+      .eq('report_year', year)
+      .order('report_month', { ascending: false });
+
+    const months = new Set(data?.map(r => r.report_month) ?? []);
+    setMonthsWithData(months);
+
+    if (selectedMonth && !months.has(selectedMonth)) {
+      const mostRecent = MONTHS.slice().reverse().find(m => months.has(m));
+      setSelectedMonth(mostRecent ?? '');
     }
   };
 
@@ -191,24 +228,8 @@ export function MonthlyDashboard() {
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Report Month</label>
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select month" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MONTHS.map(month => (
-                      <SelectItem key={month} value={month}>
-                        {month}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">Report Year</label>
-                <Select value={String(selectedYear)} onValueChange={(val) => setSelectedYear(parseInt(val))}>
+                <Select value={String(selectedYear)} onValueChange={handleYearChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select year" />
                   </SelectTrigger>
@@ -218,6 +239,30 @@ export function MonthlyDashboard() {
                         {year}
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Report Month</label>
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MONTHS.map(month => {
+                      const disabled = monthsWithData.size > 0 && !monthsWithData.has(month);
+                      return (
+                        <SelectItem
+                          key={month}
+                          value={month}
+                          disabled={disabled}
+                          className={disabled ? 'opacity-40 cursor-not-allowed' : ''}
+                        >
+                          {month}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>

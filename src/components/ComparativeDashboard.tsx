@@ -254,21 +254,6 @@ export function ComparativeDashboard() {
               <h3 className="text-sm font-semibold text-gray-700">Current Month</h3>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-gray-600">Month</label>
-                  <Select value={currentMonth} onValueChange={setCurrentMonth}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select month" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {MONTHS.map(month => (
-                        <SelectItem key={month} value={month}>
-                          {month}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
                   <label className="text-xs font-medium text-gray-600">Year</label>
                   <Select value={String(currentYear)} onValueChange={(val) => setCurrentYear(parseInt(val))}>
                     <SelectTrigger>
@@ -283,15 +268,9 @@ export function ComparativeDashboard() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-gray-700">Benchmark Month</h3>
-              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-gray-600">Month</label>
-                  <Select value={benchmarkMonth} onValueChange={setBenchmarkMonth}>
+                  <Select value={currentMonth} onValueChange={setCurrentMonth}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select month" />
                     </SelectTrigger>
@@ -304,6 +283,12 @@ export function ComparativeDashboard() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-gray-700">Benchmark Month</h3>
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-gray-600">Year</label>
                   <Select value={String(benchmarkYear)} onValueChange={(val) => setBenchmarkYear(parseInt(val))}>
@@ -314,6 +299,21 @@ export function ComparativeDashboard() {
                       {YEARS.map(year => (
                         <SelectItem key={year} value={String(year)}>
                           {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-gray-600">Month</label>
+                  <Select value={benchmarkMonth} onValueChange={setBenchmarkMonth}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select month" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MONTHS.map(month => (
+                        <SelectItem key={month} value={month}>
+                          {month}
                         </SelectItem>
                       ))}
                     </SelectContent>

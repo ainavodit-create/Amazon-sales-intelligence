@@ -488,22 +488,6 @@ export function ReturnsUpload({ onDataUploaded }: { onDataUploaded: () => void }
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Report Month</label>
-            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select month" />
-              </SelectTrigger>
-              <SelectContent>
-                {MONTHS.map(month => (
-                  <SelectItem key={month} value={month}>
-                    {month}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
             <label className="text-sm font-medium">Report Year</label>
             <Select value={String(selectedYear)} onValueChange={(val) => setSelectedYear(parseInt(val))}>
               <SelectTrigger>
@@ -513,6 +497,22 @@ export function ReturnsUpload({ onDataUploaded }: { onDataUploaded: () => void }
                 {YEARS.map(year => (
                   <SelectItem key={year} value={String(year)}>
                     {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Report Month</label>
+            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select month" />
+              </SelectTrigger>
+              <SelectContent>
+                {MONTHS.map(month => (
+                  <SelectItem key={month} value={month}>
+                    {month}
                   </SelectItem>
                 ))}
               </SelectContent>
