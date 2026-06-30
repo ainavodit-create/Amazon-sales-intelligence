@@ -10,6 +10,7 @@ import { useToast } from '../hooks/use-toast';
 import { MainContentContainer } from './MainContentContainer';
 import { useDemoMode } from '../contexts/DemoModeContext';
 import { formatProductTitle } from '../lib/demoTransform';
+import { PeriodSelector } from './PeriodSelector';
 import {
   Bar,
   Line,
@@ -21,13 +22,6 @@ import {
   ResponsiveContainer,
   ComposedChart,
 } from 'recharts';
-
-const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
-
-const YEARS = [2025, 2026, 2027];
 
 interface ReturnsAnalysisData {
   product_name: string;
@@ -282,35 +276,15 @@ export function ReturnsAnalysis() {
 
       <div className="flex gap-4 items-end">
         <div className="space-y-2">
-          <label className="text-sm font-medium">Report Year</label>
-          <Select value={String(selectedYear)} onValueChange={(val) => setSelectedYear(parseInt(val))}>
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Select year" />
-            </SelectTrigger>
-            <SelectContent>
-              {YEARS.map(year => (
-                <SelectItem key={year} value={String(year)}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Report Month</label>
-          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select month" />
-            </SelectTrigger>
-            <SelectContent>
-              {MONTHS.map(month => (
-                <SelectItem key={month} value={month}>
-                  {month}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <label className="text-sm font-medium">Report Period</label>
+          <PeriodSelector
+            month={selectedMonth}
+            year={selectedYear}
+            onSelect={(m, y) => {
+              setSelectedMonth(m);
+              setSelectedYear(y);
+            }}
+          />
         </div>
 
         {availableMonths.length > 0 && (

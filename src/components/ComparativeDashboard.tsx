@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, ArrowLeftRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { supabase, DashboardRow } from '../lib/supabase';
 import { useToast } from '../hooks/use-toast';
 import { Alert, AlertDescription } from './ui/alert';
@@ -11,13 +10,7 @@ import { ProductComparisonTable } from './ProductComparisonTable';
 import { MainContentContainer } from './MainContentContainer';
 import { useDemoMode } from '../contexts/DemoModeContext';
 import { applyDemoTransform } from '../lib/demoTransform';
-
-const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
-
-const YEARS = [2025, 2026, 2027];
+import { PeriodSelector } from './PeriodSelector';
 
 interface MonthData {
   totalSales: number;
@@ -251,75 +244,21 @@ export function ComparativeDashboard() {
           <CardContent className="pt-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-gray-700">Current Month</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-gray-600">Year</label>
-                  <Select value={String(currentYear)} onValueChange={(val) => setCurrentYear(parseInt(val))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {YEARS.map(year => (
-                        <SelectItem key={year} value={String(year)}>
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-gray-600">Month</label>
-                  <Select value={currentMonth} onValueChange={setCurrentMonth}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select month" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {MONTHS.map(month => (
-                        <SelectItem key={month} value={month}>
-                          {month}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              <h3 className="text-sm font-semibold text-gray-700">Current Period</h3>
+              <PeriodSelector
+                month={currentMonth}
+                year={currentYear}
+                onSelect={(m, y) => { setCurrentMonth(m); setCurrentYear(y); }}
+              />
             </div>
 
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-gray-700">Benchmark Month</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-gray-600">Year</label>
-                  <Select value={String(benchmarkYear)} onValueChange={(val) => setBenchmarkYear(parseInt(val))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {YEARS.map(year => (
-                        <SelectItem key={year} value={String(year)}>
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-gray-600">Month</label>
-                  <Select value={benchmarkMonth} onValueChange={setBenchmarkMonth}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select month" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {MONTHS.map(month => (
-                        <SelectItem key={month} value={month}>
-                          {month}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              <h3 className="text-sm font-semibold text-gray-700">Benchmark Period</h3>
+              <PeriodSelector
+                month={benchmarkMonth}
+                year={benchmarkYear}
+                onSelect={(m, y) => { setBenchmarkMonth(m); setBenchmarkYear(y); }}
+              />
             </div>
           </div>
 

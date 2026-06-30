@@ -3,12 +3,12 @@ import Papa from 'papaparse';
 import { Upload, CircleCheck as CheckCircle2, CircleAlert as AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Alert, AlertDescription } from './ui/alert';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../hooks/use-toast';
 import { UnmappedProductsModal } from './UnmappedProductsModal';
 import { MainContentContainer } from './MainContentContainer';
 import { useDemoMode } from '../contexts/DemoModeContext';
+import { PeriodSelector } from './PeriodSelector';
 
 interface SalesRow {
   '(Parent) ASIN'?: string;
@@ -25,13 +25,6 @@ interface SalesRow {
   total_order_items?: number;
   ordered_product_sales?: number;
 }
-
-const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
-
-const YEARS = [2025, 2026, 2027];
 
 interface UnmappedProduct {
   asin: string;
@@ -292,38 +285,16 @@ export function MonthlySalesUpload({ onDataUploaded }: { onDataUploaded: () => v
           </Alert>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Report Year</label>
-            <Select value={String(selectedYear)} onValueChange={(val) => setSelectedYear(parseInt(val))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select year" />
-              </SelectTrigger>
-              <SelectContent>
-                {YEARS.map(year => (
-                  <SelectItem key={year} value={String(year)}>
-                    {year}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Report Month</label>
-            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select month" />
-              </SelectTrigger>
-              <SelectContent>
-                {MONTHS.map(month => (
-                  <SelectItem key={month} value={month}>
-                    {month}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Report Period</label>
+          <PeriodSelector
+            month={selectedMonth}
+            year={selectedYear}
+            onSelect={(m, y) => {
+              setSelectedMonth(m);
+              setSelectedYear(y);
+            }}
+          />
         </div>
 
         <div className="space-y-2">

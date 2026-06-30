@@ -11,13 +11,7 @@ import { Badge } from './ui/badge';
 import { MainContentContainer } from './MainContentContainer';
 import { useDemoMode } from '../contexts/DemoModeContext';
 import { applyDemoTransform } from '../lib/demoTransform';
-
-const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
-
-const YEARS = [2025, 2026, 2027];
+import { PeriodSelector } from './PeriodSelector';
 
 export function MonthlyDashboard() {
   const { isDemoMode } = useDemoMode();
@@ -66,25 +60,6 @@ export function MonthlyDashboard() {
     setMonthsWithData(months);
   };
 
-  const handleYearChange = async (yearStr: string) => {
-    const year = parseInt(yearStr);
-    setSelectedYear(year);
-    setData([]);
-
-    const { data } = await supabase
-      .from('amazon_monthly_sales')
-      .select('report_month')
-      .eq('report_year', year)
-      .order('report_month', { ascending: false });
-
-    const months = new Set(data?.map(r => r.report_month) ?? []);
-    setMonthsWithData(months);
-
-    if (selectedMonth && !months.has(selectedMonth)) {
-      const mostRecent = MONTHS.slice().reverse().find(m => months.has(m));
-      setSelectedMonth(mostRecent ?? '');
-    }
-  };
 
   useEffect(() => {
     if (selectedMonth && selectedYear) {
@@ -226,46 +201,26 @@ export function MonthlyDashboard() {
       <div className="space-y-6">
         <Card className="border border-gray-200 bg-white shadow-none">
           <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Report Year</label>
-                <Select value={String(selectedYear)} onValueChange={handleYearChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select year" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {YEARS.map(year => (
-                      <SelectItem key={year} value={String(year)}>
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Report Month</label>
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select month" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MONTHS.map(month => {
-                      const disabled = monthsWithData.size > 0 && !monthsWithData.has(month);
-                      return (
-                        <SelectItem
-                          key={month}
-                          value={month}
-                          disabled={disabled}
-                          className={disabled ? 'opacity-40 cursor-not-allowed' : ''}
-                        >
-                          {month}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="mb-4">
+              <label className="text-sm font-medium text-gray-700 block mb-2">Report Period</label>
+              <PeriodSelector
+                month={selectedMonth}
+                year={selectedYear}
+                dataAware
+                monthsWithData={monthsWithData}
+                onYearPreview={async (y) => {
+                  const { data } = await supabase
+                    .from('amazon_monthly_sales')
+                    .select('report_month')
+                    .eq('report_year', y);
+                  setMonthsWithData(new Set(data?.map(r => r.report_month) ?? []));
+                }}
+                onSelect={(m, y) => {
+                  setSelectedMonth(m);
+                  setSelectedYear(y);
+                  setData([]);
+                }}
+              />
             </div>
 
             <Button onClick={loadDashboardData} disabled={loading || !selectedMonth} className="w-full">

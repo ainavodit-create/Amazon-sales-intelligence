@@ -4,12 +4,12 @@ import { XMLParser } from 'fast-xml-parser';
 import { Upload, CircleCheck as CheckCircle2, CircleAlert as AlertCircle, FileText, FileCode } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Alert, AlertDescription } from './ui/alert';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Button } from './ui/button';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../hooks/use-toast';
 import { MainContentContainer } from './MainContentContainer';
 import { useDemoMode } from '../contexts/DemoModeContext';
+import { PeriodSelector } from './PeriodSelector';
 
 interface ReturnsRow {
   'ASIN'?: string;
@@ -18,13 +18,6 @@ interface ReturnsRow {
   'Return Reason'?: string;
   [key: string]: string | number | undefined;
 }
-
-const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
-
-const YEARS = [2025, 2026, 2027];
 
 export function ReturnsUpload({ onDataUploaded }: { onDataUploaded: () => void }) {
   const { isDemoMode } = useDemoMode();
@@ -486,38 +479,16 @@ export function ReturnsUpload({ onDataUploaded }: { onDataUploaded: () => void }
           </Alert>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Report Year</label>
-            <Select value={String(selectedYear)} onValueChange={(val) => setSelectedYear(parseInt(val))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select year" />
-              </SelectTrigger>
-              <SelectContent>
-                {YEARS.map(year => (
-                  <SelectItem key={year} value={String(year)}>
-                    {year}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Report Month</label>
-            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select month" />
-              </SelectTrigger>
-              <SelectContent>
-                {MONTHS.map(month => (
-                  <SelectItem key={month} value={month}>
-                    {month}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Report Period</label>
+          <PeriodSelector
+            month={selectedMonth}
+            year={selectedYear}
+            onSelect={(m, y) => {
+              setSelectedMonth(m);
+              setSelectedYear(y);
+            }}
+          />
         </div>
 
         <div className="grid md:grid-cols-2 gap-4">
